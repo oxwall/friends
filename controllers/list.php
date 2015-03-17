@@ -161,7 +161,7 @@ class FRIENDS_CTRL_List extends OW_ActionController
      * @param string $listType
      * @return array( $userList, $count )
      */
-    private function getInfo( $first, $count, $listType )
+    protected function getInfo( $first, $count, $listType )
     {
         $service = FRIENDS_BOL_Service::getInstance();
         $userService = BOL_UserService::getInstance();
@@ -225,7 +225,7 @@ class FRIENDS_CTRL_List extends OW_ActionController
      *
      * @return BASE_CMP_ContentMenu
      */
-    private function getMenu()
+    protected function getMenu()
     {
         $items = array();
         $language = OW::getLanguage();

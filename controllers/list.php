@@ -36,7 +36,7 @@
  */
 class FRIENDS_CTRL_List extends OW_ActionController
 {
-    private $params;
+    protected $params;
 
     /**
      * Get list of friendships

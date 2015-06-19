@@ -127,7 +127,7 @@ class FRIENDS_CLASS_EventHandler
 
         $userId = (int) $params['userId'];
 
-        if ( !OW::getUser()->isAuthenticated() || OW::getUser()->getId() == $userId || !OW::getUser()->isAuthorized('friends', 'add_friend') )
+        if ( !OW::getUser()->isAuthenticated() || OW::getUser()->getId() == $userId )
         {
             return;
         }
@@ -136,7 +136,8 @@ class FRIENDS_CLASS_EventHandler
         $router = OW::getRouter();
         $dto = $this->service->findFriendship($userId, OW::getUser()->getId());
         $linkId = 'friendship' . rand(10, 1000000);
-        if ( $dto === null )
+        $extra_label = null;
+        if ( $dto === null && OW::getUser()->isAuthorized('friends', 'add_friend') )
         {
             if ( BOL_UserService::getInstance()->isBlocked(OW::getUser()->getId(), $userId) )
             {
@@ -156,6 +157,10 @@ class FRIENDS_CLASS_EventHandler
 
             $label = OW::getLanguage()->text('friends', 'add_to_friends');
         }
+        elseif ( $dto === null )
+        {
+            return;
+        }
         else
         {
             switch ( $dto->getStatus() )
@@ -169,11 +174,16 @@ class FRIENDS_CLASS_EventHandler
 
                     if ( $dto->getUserId() == OW::getUser()->getId() )
                     {
-                        $label = $language->text('friends', 'remove_from_friends');
+                        $label = $language->text('friends', 'friend_request_was_sent');
                         $href = $router->urlFor('FRIENDS_CTRL_Action', 'cancel', array('id' => $userId, 'redirect'=>true));
+                        $extra_label = $language->text('friends', 'cancel_request');
                     }
                     else
                     {
+                        if ( !OW::getUser()->isAuthorized('friends', 'add_friend') )
+                        {
+                            return;
+                        }
                         $label = $language->text('friends', 'add_to_friends');
                         $href = $router->urlFor('FRIENDS_CTRL_Action', 'accept', array('id' => $userId));
                     }
@@ -188,6 +198,10 @@ class FRIENDS_CLASS_EventHandler
                     }
                     else
                     {
+                        if ( !OW::getUser()->isAuthorized('friends', 'add_friend') )
+                        {
+                            return;
+                        }
                         $label = $language->text('friends', 'add_to_friends');
                         $href = $router->urlFor('FRIENDS_CTRL_Action', 'activate', array('id' => $userId));
                     }
@@ -199,7 +213,8 @@ class FRIENDS_CLASS_EventHandler
             BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_HREF => $href,
             BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_ID => $linkId,
             BASE_CMP_ProfileActionToolbar::DATA_KEY_ITEM_KEY => 'friends.action',
-            BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_ORDER => 1
+            BASE_CMP_ProfileActionToolbar::DATA_KEY_LINK_ORDER => 1,
+            BASE_CMP_ProfileActionToolbar::DATA_KEY_EXTRA_LABEL => $extra_label
         );
 
         $event->add($resultArray);

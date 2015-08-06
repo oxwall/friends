@@ -178,7 +178,7 @@ class FRIENDS_BOL_FriendshipDao extends OW_BaseDao
      * @param integer $requesterId
      * @param integer $userId
      */
-    public function findExampleByRequesterIdAndUserId( $requesterId, $userId )
+    public function findByRequesterIdAndUserId( $requesterId, $userId )
     {
         $ex = new OW_Example();
         $ex->andFieldEqual('friendId', $userId)

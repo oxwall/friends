@@ -507,12 +507,16 @@ class FRIENDS_CLASS_EventHandler
 //    }
 
     public function onCancelRequest( OW_Event $e )
-    {
+    {        
         $params = $e->getParams();
         $recipientId = $params['recipientId'];
         $senderId = $params['senderId'];
 
+        $dto = $this->service->findByRequesterIdAndUserId($recipientId, $senderId);
         $this->service->cancel($recipientId, $senderId);
+        
+        $event = new OW_Event('feed.delete_item', array('entityType' => 'friend_add', 'entityId' => $dto->id));
+        OW::getEventManager()->trigger($event);
 
         $eventParams = array(
             'userId' => $recipientId,

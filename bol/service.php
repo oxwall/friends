@@ -217,9 +217,9 @@ class FRIENDS_BOL_Service
      * @param integer $requesterId
      * @param integer $userId
      */
-    public function getDto( $requesterId, $userId )
+    public function findExampleByRequesterIdAndUserId( $requesterId, $userId )
     {
-        return $this->friendshipDao->getDto($requesterId, $userId);
+        return $this->friendshipDao->findExampleByRequesterIdAndUserId($requesterId, $userId);
     }
 
     /**

@@ -167,8 +167,32 @@ class FRIENDS_BOL_FriendshipDao extends OW_BaseDao
 
         $ex->andFieldInArray('userId', array($userId, $requesterId))
             ->andFieldInArray('friendId', array($userId, $requesterId));
+        
+        $this->deleteByExample($ex);   
+        
+    }
+    
+    /**
+     * getDto friendship
+     *
+     * @param integer $requesterId
+     * @param integer $userId
+     */
+    public function getDto( $requesterId, $userId )
+    {
+        $ex = new OW_Example();
+        $ex->andFieldEqual('friendId', $userId)
+            ->andFieldEqual('userId', $requesterId);
+        
+         $dto = $this->findObjectByExample($ex);
 
-        $this->deleteByExample($ex);
+        if ( empty($dto) )
+        {
+            return;
+        }
+        
+        return $dto;
+        
     }
 
     /**

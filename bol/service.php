@@ -210,6 +210,17 @@ class FRIENDS_BOL_Service
     {
         $this->friendshipDao->cancel($requesterId, $userId);
     }
+    
+    /**
+     * getDto friendship
+     *
+     * @param integer $requesterId
+     * @param integer $userId
+     */
+    public function getDto( $requesterId, $userId )
+    {
+        return $this->friendshipDao->getDto($requesterId, $userId);
+    }
 
     /**
      * Activate friendship

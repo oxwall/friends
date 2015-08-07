@@ -130,29 +130,43 @@ class FRIENDS_MCLASS_ConsoleEventHandler
             return;
         }
 
-        if ( !OW::getUser()->isAuthorized('friends', 'add_friend') )
-        {
-            return;
-        }
-
         $userId = (int) $params['userId'];
 
         $language = OW::getLanguage();
         $router = OW::getRouter();
         $dto = FRIENDS_BOL_Service::getInstance()->findFriendship($userId, OW::getUser()->getId());
         $linkId = 'friendship' . rand(10, 1000000);
+        
         if ( $dto === null )
         {
-            if ( BOL_UserService::getInstance()->isBlocked(OW::getUser()->getId(), $userId) )
+            if( !OW::getUser()->isAuthorized('friends', 'add_friend') )
             {
-                $script = "\$('#" . $linkId . "').click(function(){
+                $status = BOL_AuthorizationService::getInstance()->getActionStatus('friends', 'add_friend');
+            
+                if ( $status['status'] == BOL_AuthorizationService::STATUS_PROMOTED )
+                {
+                    $href = 'javascript://';
+                    $script = '$({$link}).click(function(){
+                        OWM.ajaxFloatBox(\'FRIENDS_MCMP_Notification\', [{$message}], {});
+                    });';
 
-            window.OW.error('" . OW::getLanguage()->text('base', 'user_block_message') . "');
-
-        });";
-
-                OW::getDocument()->addOnloadScript($script);
+                    $script = UTIL_JsGenerator::composeJsString($script, array('link' => '#'.$linkId, 'message' => $status['msg'] ));
+                    OW::getDocument()->addOnloadScript($script);
+                }
+                else if ( $status['status'] != BOL_AuthorizationService::STATUS_AVAILABLE )
+                {
+                    return;
+                }
+            }
+            else if ( BOL_UserService::getInstance()->isBlocked(OW::getUser()->getId(), $userId) )
+            {
                 $href = 'javascript://';
+                $script = '$({$link}).click(function(){
+                    OWM.ajaxFloatBox(\'FRIENDS_MCMP_Notification\', [{$message}], {});
+                });';
+                
+                $script = UTIL_JsGenerator::composeJsString($script, array('link' => '#'.$linkId, 'message' => OW::getLanguage()->text('base', 'user_block_message') ));
+                OW::getDocument()->addOnloadScript($script);
             }
             else
             {

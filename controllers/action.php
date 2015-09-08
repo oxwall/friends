@@ -45,7 +45,7 @@ class FRIENDS_CTRL_Action extends OW_ActionController
      */
     public function request( $params )
     {
-        if ( !OW::getUser()->isAuthenticated() )
+         if ( !OW::getUser()->isAuthenticated() )
         {
            throw new AuthenticateException();
         }
@@ -63,17 +63,19 @@ class FRIENDS_CTRL_Action extends OW_ActionController
         {
             $status = BOL_AuthorizationService::getInstance()->getActionStatus('friends', 'add_friend');
             OW::getFeedback()->error($status['msg']);
+            $isAutorise = false;
         }
 
         $service = FRIENDS_BOL_Service::getInstance();
 
-        if ( $service->findFriendship($requesterId, $userId) === null )
+        if ( $service->findFriendship($requesterId, $userId) === null  )
         {
-            $service->request($requesterId, $userId);
-
-            $service->onRequest($requesterId, $userId);
-
-            OW::getFeedback()->info(OW::getLanguage()->text('friends', 'feedback_request_was_sent'));
+            if ($isAutorise !== false)
+            {
+                $service->request($requesterId, $userId);
+                $service->onRequest($requesterId, $userId);
+                OW::getFeedback()->info(OW::getLanguage()->text('friends', 'feedback_request_was_sent'));
+            }        
         }
         else
         {

@@ -161,13 +161,16 @@ class FRIENDS_CLASS_EventHandler
         {
             $status = BOL_AuthorizationService::getInstance()->getActionStatus('friends', 'add_friend');
             
-            if($status['status'] == 'disabled')
+            if($status['status'] == BOL_AuthorizationService::STATUS_PROMOTED)
+            {
+                $href = $router->urlFor('FRIENDS_CTRL_Action', 'request', array('id' => $userId));
+                $label = OW::getLanguage()->text('friends', 'add_to_friends');
+            }
+            else
             {
                 return;
-            }
+            }            
             
-            $href = $router->urlFor('FRIENDS_CTRL_Action', 'request', array('id' => $userId));
-            $label = OW::getLanguage()->text('friends', 'add_to_friends');
         }
         else
         {

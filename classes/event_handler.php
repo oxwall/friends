@@ -77,6 +77,7 @@ class FRIENDS_CLASS_EventHandler
         OW::getEventManager()->bind('notifications.collect_actions',            array($this,'onCollectNotificationActions'));
         OW::getEventManager()->bind('plugin.friends',                           array($this,'onPluginIsActive'));
         OW::getEventManager()->bind('plugin.friends.get_friend_list',           array($this,'getFriendList'));
+        OW::getEventManager()->bind('plugin.friends.get_friend_list_by_display_name', array($this,'getFriendListByDisplayName'));
         OW::getEventManager()->bind('plugin.friends.check_friendship',          array($this,'findFriendship'));
         OW::getEventManager()->bind('plugin.friends.count_friends',             array($this,'findCountOfUserFriendsInList'));
         OW::getEventManager()->bind('plugin.friends.find_all_active_friendships', array($this,'findAllActiveFriendships'));
@@ -292,6 +293,26 @@ class FRIENDS_CLASS_EventHandler
         }
 
         return FRIENDS_BOL_Service::getInstance()->findUserFriendsInList($userId, $first, $count, $paramsUserIdList);
+    }
+
+    public function getFriendListByDisplayName( OW_Event $event )
+    {
+        $params = $event->getParams();
+
+        if ( empty($params['userId']) || empty($params['search']) )
+        {
+            return null;
+        }
+
+        $service = FRIENDS_BOL_Service::getInstance();
+        $userId = $params['userId'];
+        $search = $params['search'];
+        $first = !empty($params['first']) ? (int)$params['first'] : 0;
+        $count = !empty($params['count']) ? (int)$params['count'] : $service->countFriends($userId);
+        $userIdList = !empty($params['userIdList']) ? (array)$params['userIdList'] : array();
+        $event->setData($service->findFriendIdListByDisplayName($userId, $search, $first, $count, $userIdList));
+
+        return $event->getData();
     }
 
     public function findFriendship( OW_Event $event )

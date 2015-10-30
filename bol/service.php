@@ -312,4 +312,9 @@ class FRIENDS_BOL_Service
     {
         $this->friendshipDao->markAllViewedByUserId($userId, $viewed);
     }
+
+    public function findFriendIdListByDisplayName( $userId, $search, $first, $count, $userIdList )
+    {
+        return $this->friendshipDao->findFriendIdListByDisplayName($userId, $search, $first, $count, $userIdList);
+    }
 }

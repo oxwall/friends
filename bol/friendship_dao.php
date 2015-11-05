@@ -531,4 +531,42 @@ class FRIENDS_BOL_FriendshipDao extends OW_BaseDao
     {
         OW::getCacheManager()->clean( array( FRIENDS_BOL_FriendshipDao::CACHE_TAG_FRIENDS_COUNT, FRIENDS_BOL_FriendshipDao::CACHE_TAG_FRIEND_ID_LIST ));
     }
+
+    public function findFriendIdListByDisplayName( $userId, $search, $first, $count, $userIdList = null )
+    {
+        $ids = $this->findFriendIdList($userId, $first, $count, $userIdList);
+        $queryParts = BOL_UserDao::getInstance()->getUserQueryFilter('u', 'id', array(
+            'method' => 'MAILBOX_BOL_AjaxService::findFriendIdListByDisplayName'
+        ));
+        $questionName = OW::getConfig()->getValue('base', 'display_name_question');
+        $params = array('search' => $search . '%');
+
+        if ( $questionName === 'username' )
+        {
+            $order = ' ORDER BY `u`.`username`';
+            $queryParts['where'] .= ' AND `u`.`username` LIKE :search';
+        }
+        else
+        {
+            $order = ' ORDER BY `qd`.`textValue`';
+            $params['questionName'] = $questionName;
+            $queryParts['where'] .= ' AND qd.questionName=:questionName AND qd.textValue LIKE :search';
+            $queryParts['join'] .= ' INNER JOIN `' . BOL_QuestionDataDao::getInstance()->getTableName() . '` AS `qd` ON(`u`.`id` = `qd`.`userId`) ';
+        }
+
+        $query = 'SELECT DISTINCT `u`.`id`
+            FROM `' . BOL_UserDao::getInstance()->getTableName() . '` AS `u`
+                ' . $queryParts['join'] . '
+            WHERE`u`.`id` IN(' . $this->dbo->mergeInClause($ids) . ') AND ' . $queryParts['where'] . '
+            ' . $order . '
+            LIMIT :first, :count';
+
+        return $this->dbo->queryForColumnList($query, array_merge(
+            array(
+                'first' => $first,
+                'count' => $count
+            ),
+            $params
+        ));
+    }
 }

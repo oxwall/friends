@@ -563,24 +563,28 @@ class FRIENDS_CLASS_EventHandler
         $senderId = $params['senderId'];
 
         $dto = $this->service->findByRequesterIdAndUserId($recipientId, $senderId);
-        $this->service->cancel($recipientId, $senderId);
-        
-        $event = new OW_Event('feed.delete_item', array('entityType' => 'friend_add', 'entityId' => $dto->id));
-        OW::getEventManager()->trigger($event);
 
-        $eventParams = array(
-            'userId' => $recipientId,
-            'feedType' => 'user',
-            'feedId' => $senderId
-        );
-        OW::getEventManager()->trigger(new OW_Event('feed.remove_follow', $eventParams));
+        if ( $dto )
+        {
+            $this->service->cancel($recipientId, $senderId);
 
-        $eventParams = array(
-            'userId' => $senderId,
-            'feedType' => 'user',
-            'feedId' => $recipientId
-        );
-        OW::getEventManager()->trigger(new OW_Event('feed.remove_follow', $eventParams));
+            $event = new OW_Event('feed.delete_item', array('entityType' => 'friend_add', 'entityId' => $dto->id));
+            OW::getEventManager()->trigger($event);
+
+            $eventParams = array(
+                'userId' => $recipientId,
+                'feedType' => 'user',
+                'feedId' => $senderId
+            );
+            OW::getEventManager()->trigger(new OW_Event('feed.remove_follow', $eventParams));
+
+            $eventParams = array(
+                'userId' => $senderId,
+                'feedType' => 'user',
+                'feedId' => $recipientId
+            );
+            OW::getEventManager()->trigger(new OW_Event('feed.remove_follow', $eventParams));
+        }
     }
 
     public function onBlockUser( OW_Event $e )

@@ -493,7 +493,7 @@ class FRIENDS_CLASS_EventHandler
                 }
             }
 
-            $friendList = FRIENDS_BOL_Service::getInstance()->findFriendIdList($viewerId, 0, 10000, $ownerIdLIst);
+            $friendList = FRIENDS_BOL_Service::getInstance()->findUserFriendsInList($viewerId, 0, 10000, $ownerIdLIst);
 
             foreach ( $list as $ownerId => $privacy )
             {

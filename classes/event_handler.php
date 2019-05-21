@@ -223,8 +223,9 @@ class FRIENDS_CLASS_EventHandler
 
                     if ( $dto->getUserId() == OW::getUser()->getId() )
                     {
-                        $label = $language->text('friends', 'remove_from_friends');
-                        $href = $router->urlFor('FRIENDS_CTRL_Action', 'cancel', array('id' => $userId));
+                        $label = $language->text('friends', 'friend_request_was_sent');
+                        $href = $router->urlFor('FRIENDS_CTRL_Action', 'cancel', array('id' => $userId, 'redirect'=>true));
+                        $extra_label = $language->text('friends', 'cancel_request');
                     }
                     else
                     {

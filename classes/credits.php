@@ -36,8 +36,12 @@
  */
 class FRIENDS_CLASS_Credits
 {
+    /** @var array */
     private $actions;
-    
+
+    /** @var array */
+    private $authActions;
+
     public function __construct()
     {
         $this->actions[] = array('pluginKey' => 'friends', 'action' => 'add_friend', 'amount' => 0);
